@@ -1,58 +1,63 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+const USER_FULLNAME = "lokesh_kunapuli";
+const DOB = "21042004";
+const EMAIL = "kunapulilokesh777@gmail.com";
+const ROLL_NUMBER = "22BCE20032";
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+function isAlphabet(ch) {
+  return /^[a-zA-Z]$/.test(ch);
+}
 
-app.post("/api/bfhl", (req, res) => {
-  try {
-    const inputArray = req.body.data;
+function alternateCapsReverse(str) {
+  let reversed = str.split("").reverse();
+  return reversed
+    .map((ch, idx) => (idx % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase()))
+    .join("");
+}
 
-    let even_numbers = [];
-    let odd_numbers = [];
-    let alphabets = [];
-    let special_characters = [];
-    let sum = 0;
+export default function handler(req, res) {
+  if (req.method === "POST") {
+    try {
+      const data = req.body.data || [];
 
-    inputArray.forEach((item) => {
-      if (/^-?\d+$/.test(item)) {
-        let num = parseInt(item);
-        sum += num;
-        if (num % 2 === 0) {
-          even_numbers.push(item.toString());
+      let numbers = [];
+      let alphabets = [];
+      let specialChars = [];
+
+      for (let item of data) {
+        if (!isNaN(item)) {
+          numbers.push(parseInt(item));
+        } else if (isAlphabet(item)) {
+          alphabets.push(item.toUpperCase());
         } else {
-          odd_numbers.push(item.toString());
+          specialChars.push(item);
         }
-      } else if (/^[a-zA-Z]+$/.test(item)) {
-        alphabets.push(item.toUpperCase());
-      } else {
-        special_characters.push(item);
       }
-    });
-    let concat_string = alphabets
-      .join("")
-      .split("")
-      .reverse()
-      .map((ch, i) => (i % 2 === 0 ? ch.toUpperCase() : ch.toLowerCase()))
-      .join("");
 
+      let even_numbers = numbers.filter((num) => num % 2 === 0);
+      let odd_numbers = numbers.filter((num) => num % 2 !== 0);
+
+      let sum = numbers.reduce((a, b) => a + b, 0).toString();
+      let concat_string = alternateCapsReverse(alphabets.join(""));
+
+      res.status(200).json({
+        is_success: true,
+        user_id: `${USER_FULLNAME}_${DOB}`,
+        email: EMAIL,
+        roll_number: ROLL_NUMBER,
+        even_numbers,
+        odd_numbers,
+        alphabets,
+        special_chars: specialChars,
+        sum,
+        concat_string,
+      });
+    } catch (err) {
+      res.status(500).json({ is_success: false, error: err.message });
+    }
+  } else {
     res.status(200).json({
-      is_success: true,
-      user_id: "lokesh_kunapuli_21042004",
-      email: "kunapulilokesh777@gmail.com",
-      roll_number: "22BCE20032",
-      odd_numbers,
-      even_numbers,
-      alphabets,
-      special_characters,
-      sum: sum.toString(),
-      concat_string,
+      operation_code: 1,
+      message: "BFHL API working!",
     });
-  } catch (error) {
-    res.status(500).json({ is_success: false, error: error.message });
   }
-});
-
-module.exports = app;
+}
