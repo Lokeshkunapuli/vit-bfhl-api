@@ -8,7 +8,7 @@ app.use(cors());
 
 const USER_FULLNAME = "Lokesh Kunapuli";
 const DOB = "21042004";
-const EMAIL = "kunapulilokesh@example.com";
+const EMAIL = "kunapulilokesh777@gmail.com";
 const ROLL_NUMBER = "22BCE20032";
 
 function isAlphabet(ch) {
